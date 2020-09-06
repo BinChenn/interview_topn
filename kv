@@ -1,0 +1,20 @@
+package kv
+
+type KV struct {
+	Key  int64
+	Data string
+}
+
+type KVs []KV
+
+func (all_kv KVs) length() int {
+	return len(all_kv)
+}
+
+func (all_kv KVs) lesser(a, b KV) bool {
+	if a.Key < b.Key {
+		return true
+	} else {
+		return false
+	}
+}

@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "github.com/BinChenn/interview_topn/pkg/kv";
+message KV {
+    int64 Key = 1;
+    string Value = 2;
+}
+
+message KVs {
+    repeated KV akv = 1;
+}
