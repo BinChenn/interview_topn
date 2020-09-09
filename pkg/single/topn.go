@@ -21,7 +21,16 @@ func GetBaseLineTopN(kvlist kv.KVList, topn int) kv.KVList {
 		return kvlist
 	}
 	sort.Sort(kvlist)
-	return kvlist[:topn]
+	return kvlist[len(kvlist)-topn:]
+}
+
+// GetBaseLineTopNRange get real topn key value by range[minkey, maxkey]
+func GetBaseLineTopNRange(kvlist kv.KVList, topn int, minKey, maxKey int64) kv.KVList {
+	if len(kvlist) < topn || maxKey-minKey < int64(topn) {
+		return kvlist
+	}
+	sort.Sort(kvlist)
+	return kvlist[len(kvlist)-topn:]
 }
 
 // GetSingleTopN get topn with
@@ -33,7 +42,8 @@ func GetSingleTopN(kvlist kv.KVList, topn int) kv.KVList {
 	heap.Init(&newkvlist)
 
 	for _, item := range kvlist[topn:] {
-		if item.Key < newkvlist[0].Key {
+		if item.Key > newkvlist[0].Key {
+			item := item
 			newkvlist[0] = item
 			heap.Fix(&newkvlist, 0)
 		}
@@ -75,7 +85,7 @@ func GetMultiCoreTopN(kvlist kv.KVList, topn int, getTopN TopNFunc, split SplitF
 	if len(kvlist) < topn {
 		return kvlist
 	}
-	segments := split(kvlist, 4)
+	segments := split(kvlist, 1)
 
 	channel := make(chan kv.KVList, len(segments))
 
@@ -86,8 +96,13 @@ func GetMultiCoreTopN(kvlist kv.KVList, topn int, getTopN TopNFunc, split SplitF
 		}()
 	}
 	var mergeList kv.KVList
-	for topnList := range channel {
-		mergeList = append(mergeList, topnList...)
+
+	for i := 0; i < len(segments); i++ {
+		if topnList, ok := <-channel; ok {
+			mergeList = append(mergeList, topnList...)
+		} else {
+			fmt.Println("channel error")
+		}
 	}
 
 	result := getTopN(mergeList, topn)
