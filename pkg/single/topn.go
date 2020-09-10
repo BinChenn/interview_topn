@@ -24,15 +24,6 @@ func GetBaseLineTopN(kvlist kv.KVList, topn int) kv.KVList {
 	return kvlist[len(kvlist)-topn:]
 }
 
-// GetBaseLineTopNRange get real topn key value by range[minkey, maxkey]
-func GetBaseLineTopNRange(kvlist kv.KVList, topn int, minKey, maxKey int64) kv.KVList {
-	if len(kvlist) < topn || maxKey-minKey < int64(topn) {
-		return kvlist
-	}
-	sort.Sort(kvlist)
-	return kvlist[len(kvlist)-topn:]
-}
-
 // GetSingleTopN get topn with
 func GetSingleTopN(kvlist kv.KVList, topn int) kv.KVList {
 	if len(kvlist) < topn {
@@ -49,6 +40,18 @@ func GetSingleTopN(kvlist kv.KVList, topn int) kv.KVList {
 		}
 	}
 	return newkvlist
+}
+
+// GetSingleTopNbyRange get topn by range
+func GetSingleTopNbyRange(kvlist kv.KVList, topn int, minkey, maxkey int64) kv.KVList {
+	var newlist kv.KVList
+
+	for _, item := range kvlist {
+		if item.Key > minkey && item.Key < maxkey {
+			newlist = append(newlist, item)
+		}
+	}
+	return GetSingleTopN(newlist, topn)
 }
 
 // DataSplitbySize split data by data size to multi go routine
@@ -101,10 +104,23 @@ func GetMultiCoreTopN(kvlist kv.KVList, topn int, getTopN TopNFunc, split SplitF
 		if topnList, ok := <-channel; ok {
 			mergeList = append(mergeList, topnList...)
 		} else {
-			fmt.Println("channel error")
+			fmt.Println("multi core channel error")
 		}
 	}
 
 	result := getTopN(mergeList, topn)
 	return result
+}
+
+// GetMultiCoreTopNbyRange get topn goroutine version
+func GetMultiCoreTopNbyRange(kvlist kv.KVList, topn int, minkey, maxkey int64, getTopN TopNFunc, split SplitFunc) kv.KVList {
+	var newlist kv.KVList
+
+	for _, item := range kvlist {
+		if item.Key > minkey && item.Key < maxkey {
+			newlist = append(newlist, item)
+		}
+	}
+	return GetMultiCoreTopN(newlist, topn, getTopN, split)
+
 }

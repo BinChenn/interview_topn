@@ -15,3 +15,5 @@
 # vendor/
 
 morestrings/
+data/
+*.data

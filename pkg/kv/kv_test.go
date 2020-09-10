@@ -6,8 +6,10 @@ import (
 )
 
 func TestGenRandKV(t *testing.T) {
-	l := GenRandKV(10, 1, 100)
-	for _, kv := range l {
-		fmt.Println(kv.Key, " ", len(kv.Value))
-	}
+	// test chunk file write
+	l := GenRandKV(1000000, 1, 999999999999, true)
+	fmt.Println(len(l))
+	// for _, kv := range l {
+	// 	fmt.Println(kv.Key, " ", len(kv.Value))
+	// }
 }
