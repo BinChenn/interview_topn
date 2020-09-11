@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/BinChenn/interview_topn/pkg/multiple"
 )
 
@@ -18,17 +16,13 @@ var (
 // RunMultiple run
 func RunMultiple() {
 	multiple.InitUser(masterAddr)
-	fmt.Println("1")
-
 	go func() {
 		multiple.StartMaster(masterAddr, workerAddrs)
 	}()
-	fmt.Println("2")
 
 	go func() {
 		multiple.StartWorker(workerAddrs[0])
 	}()
-	fmt.Println("3")
 
 	multiple.GetMulMachineTopN(minkey, maxkey, topn)
 }

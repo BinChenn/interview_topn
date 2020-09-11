@@ -56,6 +56,8 @@ func GetSingleTopNbyRange(kvlist kv.KVList, topn int, minkey, maxkey int64) kv.K
 
 // DataSplitbySize split data by data size to multi go routine
 func DataSplitbySize(kvlist kv.KVList, routinePerCPU int) []kv.KVList {
+	// setup max cpus can use
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	sliceNum := runtime.NumCPU() * routinePerCPU
 	fmt.Println("cpu num: ", runtime.NumCPU(), " slice: ", sliceNum)
 	sliceLen := len(kvlist) / sliceNum

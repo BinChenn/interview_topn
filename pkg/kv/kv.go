@@ -159,7 +159,7 @@ func ReadByChunk(chunkIndex int64) KVList {
 			panic(err)
 		}
 	}
-	fmt.Println("Read file: ", dataFName, " len: ", len(lenRecords))
+	// fmt.Println("Read file: ", dataFName, " len: ", len(lenRecords))
 	kvlist := make([]*KV, len(lenRecords))
 	offset := 0
 	for i, valueLen := range lenRecords {
